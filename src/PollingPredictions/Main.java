@@ -11,39 +11,41 @@ package PollingPredictions;
 
 import java.io.IOException;
 
-public class Main extends CandidateInformation {
+public class Main extends CandidateInformation implements Strategies {
     // location of text file containing list of urls
     final static String URLS = "src/urls.txt";
-
+    final static boolean printSwitch = true;
 
     public static void main(String[] args) {
+        /*
+            WARNING: STRANGE GLITCH
+            IF CODE DOES NOT WORK, YOU MUST CREATE A DATA FOLDER UNDER LAB4 FOLDER
+            THANK YOU FOR UNDERSTANDING
+         */
         DataCollector dataCollector = new DataCollector(URLS);
         try {
             dataCollector.collectData();
         }
         catch (IOException e) {
+            e.printStackTrace();
+        }
+        Analyzer analyzer = new Analyzer(printSwitch);
+
+        try {
+            dataCollector.collectData();
+        } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
         }
-        Analyzer analyzer = new Analyzer();
 
-        for (CandidateProfile candidate : CANDIDATES) {
-            // print out the average for each candidate
-            System.out.println("Candidate " + candidate.candidate_first_name() +  " " + candidate.candidate_last_name()
-                    + " percent average is " +
-                    analyzer.computeAverage(candidate.candidate_id(),
-                    dataCollector.getData()).get(candidate.candidate_last_name()) + "%");
 
-            // print out standard deviation for each candidate
-            System.out.println("Candidate " + candidate.candidate_first_name() + " " + candidate.candidate_last_name()
-                            + " standard deviation is " +
-                    analyzer.computeStandardDeviation(candidate.candidate_id(),
-                    dataCollector.getData()).get(candidate.candidate_last_name()));
-        }
+        // populate analyzer with all strategies
+        for (StrategyAnalyzer strategy : STRATEGIES)
+            analyzer.addStrategy(strategy);
 
-        System.out.println("Simplisticly we assume that the winner of the 2024 presidential election is " +
-                analyzer.guessWinner(dataCollector.getData()));
 
-        System.out.println("More accurately the president will be..... " +
-                analyzer.predictWinner());
+        for (CandidateProfile candidate : CANDIDATES)
+            analyzer.analyze(candidate.candidate_id(), dataCollector.getData());
+
+        System.out.println(analyzer.getInstanceData());
     }
 }

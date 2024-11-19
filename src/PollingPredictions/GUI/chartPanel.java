@@ -6,7 +6,6 @@ package PollingPredictions.GUI;
  */
 
 import javax.swing.JPanel;
-import PollingPredictions.Analyzer;
 import PollingPredictions.CandidateProfile;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -25,20 +24,18 @@ public class chartPanel extends ApplicationFrame implements GUIConstants {
     ChartPanel chartPanel;
 
     // create new application frame
-    public chartPanel(String title, Analyzer analyzer) {
+    public chartPanel(String title, double mean) {
         // set up application frame
         super(title);
-        setContentPane(getChartPanel(analyzer));
+        setContentPane(getChartPanel(mean));
     }
 
     // creates a data set of the average percentages of each candidate
-    private PieDataset createDataSet(Analyzer analyzer) {
+    private PieDataset createDataSet(double mean) {
         DefaultPieDataset dataset = new DefaultPieDataset();
 
         // create data points from each candidate's mean
         for (CandidateProfile candidate : CANDIDATES) {
-            Double mean = analyzer.getCandidateAverage().get(candidate.candidate_last_name());
-
             // get the double from the average map
             dataset.setValue(candidate.candidate_first_name() + " " + candidate.candidate_last_name(),
                     mean);
@@ -58,8 +55,8 @@ public class chartPanel extends ApplicationFrame implements GUIConstants {
     }
 
     // create chart and return it
-    public JPanel getChartPanel(Analyzer analyzer) {
-        JFreeChart chart = createChart(createDataSet(analyzer));
+    public JPanel getChartPanel(double mean) {
+        JFreeChart chart = createChart(createDataSet(mean));
         chartPanel = new ChartPanel(chart);
 
         // this is for color formatting
